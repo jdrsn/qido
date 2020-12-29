@@ -1,0 +1,20 @@
+{
+  "name": "@qido/core",
+  "version": "1.0.1",
+  "description": "free backend service",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jdrsn/qido.git"
+  },
+  "author": "jdrsn",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {},
+  "keywords": []
+}
