@@ -1,10 +1,10 @@
 {
-  "name": "@qido/core",
-  "version": "1.0.3",
-  "description": "free backend service",
+  "name": "@qido/client",
+  "version": "1.0.1",
+  "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node test.js"
   },
   "repository": {
     "type": "git",
