@@ -1,4 +1,5 @@
 const fetch = require('node-fetch')
+const headers = {'Content-Type': 'application/json'}
 
 module.exports = class qido {
 
@@ -21,7 +22,8 @@ module.exports = class qido {
     auth(user, pass) {
         let url = '/a/' + this.app + '/' + user + '/' + pass
         let config = {
-            method: 'GET'
+            method: 'GET',
+            headers: headers
         }
         return this.request(url, config)
     }
@@ -30,47 +32,39 @@ module.exports = class qido {
         const options = {
             method: 'POST',
             body: JSON.stringify(body),
-            headers: {
-                authorization: 'Bearer ' + token,
-                'Content-Type': 'application/json'
-            }
+            headers: headers
         }
+        options.headers.authorization = 'Bearer ' + token
         return this.request('/c/' + this.app + '/' + path, options)
     }
 
     read(path, token = '') {
         let url = '/r/' + this.app + '/' + path
-        let config = {
+        let options = {
             method: 'GET',
-            headers: {
-                authorization: 'Bearer ' + token,
-                'Content-Type': 'application/json'
-            }
+            headers: headers
         }
-        return this.request(url, config)
+        options.headers.authorization = 'Bearer ' + token
+        return this.request(url, options)
     }
 
     update(path, body, token = '') {
         const options = {
             method: 'PUT',
             body: JSON.stringify(body),
-            headers: {
-                authorization: 'Bearer ' + token,
-                'Content-Type': 'application/json'
-            }
+            headers: headers
         }
+        options.headers.authorization = 'Bearer ' + token
         return this.request('/u/' + this.app + '/' + path, options)
     }
 
     delete(path, token = '') {
         let url = '/d/' + this.app + '/' + path
-        let config = {
+        let options = {
             method: 'DELETE',
-            headers: {
-                authorization: 'Bearer ' + token,
-                'Content-Type': 'application/json'
-            }
+            headers: headers
         }
-        return this.request(url, config)
+        options.headers.authorization = 'Bearer ' + token
+        return this.request(url, options)
     }
 }
