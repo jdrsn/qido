@@ -1,6 +1,6 @@
 {
   "name": "@qido/core",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "free backend service",
   "main": "index.js",
   "scripts": {
