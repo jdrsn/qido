@@ -1,70 +1,75 @@
 const fetch = require('node-fetch')
-const headers = {'Content-Type': 'application/json'}
 
 module.exports = class qido {
 
     constructor(app) {
-        this.app = app
         this.basePath = 'https://qi.do'
+        this.app = app
+        this.token = null
     }
 
-    request(endpoint = '', options = {}) {
+    request(endpoint = '', options = {}, token = null) {
         let url = this.basePath + endpoint
-
-        return fetch(url, options).then(r => {
-            if (r.ok) {
-                return r.json()
-            }
-            return r
+        options.headers = {'Content-Type': 'application/json'}
+        if (!token) token = this.getToken()
+        if (token) options.headers.authorization = 'Bearer ' + token
+        return fetch(url, options).then(res => {
+            if (res.ok) return res.json()
+            throw res.statusText
         })
     }
 
     auth(user, pass) {
         let url = '/a/' + this.app + '/' + user + '/' + pass
-        let config = {
-            method: 'GET',
-            headers: headers
-        }
-        return this.request(url, config)
+        return this.request(url, {method: 'GET'})
     }
 
-    create(path, body, token = '') {
+    create(path, object, token = null) {
         const options = {
             method: 'POST',
-            body: JSON.stringify(body),
-            headers: headers
+            body: JSON.stringify(object),
         }
-        options.headers.authorization = 'Bearer ' + token
-        return this.request('/c/' + this.app + '/' + path, options)
+        return this.request('/c/' + this.app + '/' + path, options, token)
     }
 
-    read(path, token = '') {
+    read(path, token = null) {
         let url = '/r/' + this.app + '/' + path
-        let options = {
-            method: 'GET',
-            headers: headers
-        }
-        options.headers.authorization = 'Bearer ' + token
-        return this.request(url, options)
+        return this.request(url, {method: 'GET'}, token)
     }
 
-    update(path, body, token = '') {
+    update(path, props, token = null) {
         const options = {
             method: 'PUT',
-            body: JSON.stringify(body),
-            headers: headers
+            body: JSON.stringify(props),
         }
-        options.headers.authorization = 'Bearer ' + token
-        return this.request('/u/' + this.app + '/' + path, options)
+        return this.request('/u/' + this.app + '/' + path, options, token)
     }
 
-    delete(path, token = '') {
+    delete(path, token = null) {
         let url = '/d/' + this.app + '/' + path
+        return this.request(url, {method: 'DELETE'}, token)
+    }
+
+    subscribe(subscription, token = null) {
+        let url = '/x/' + this.app + '/p/s'
         let options = {
-            method: 'DELETE',
-            headers: headers
+            method: 'POST',
+            body: JSON.stringify(subscription)
         }
-        options.headers.authorization = 'Bearer ' + token
-        return this.request(url, options)
+        return this.request(url, options, token)
+    }
+
+    broadcast(notification, audience = null, token = null) {
+        let url = '/x/' + this.app + '/p/b'
+        let options = {
+            method: 'POST',
+            body: JSON.stringify(notification)
+        }
+        if (audience) url = url + '?q=' + JSON.stringify(audience)
+        return this.request(url, options, token)
+    }
+
+    getToken() {
+        return this.token || localStorage.getItem('token') || sessionStorage.getItem('token')
     }
 }
