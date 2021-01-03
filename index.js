@@ -1,5 +1,5 @@
 const fetch = require('node-fetch')
-const headers = {'Content-Type': 'application/json'}
+let headers = {'Content-Type': 'application/json'}
 
 module.exports = class qido {
 
@@ -24,14 +24,14 @@ module.exports = class qido {
         return this.request(url, {method: 'GET', headers: headers})
     }
 
-    create(path, object, upload = false, token = null) {
-        if (!upload) object = JSON.stringify(object)
+    create(path, object, token = null) {
+        if (object instanceof FormData) headers = {}
+        else object = JSON.stringify(object)
         const options = {
             method: 'POST',
             body: object,
             headers: headers
         }
-        if (upload) options.headers = {}
         return this.request('/c/' + this.app + '/' + path, options, token)
     }
 
@@ -40,14 +40,14 @@ module.exports = class qido {
         return this.request(url, {method: 'GET', headers: headers}, token)
     }
 
-    update(path, props, upload = false, token = null) {
-        if (!upload) props = JSON.stringify(props)
+    update(path, props, token = null) {
+        if (props instanceof FormData) headers = {}
+        else props = JSON.stringify(props)
         const options = {
             method: 'PUT',
             body: props,
             headers: headers
         }
-        if (upload) options.headers = {}
         return this.request('/u/' + this.app + '/' + path, options, token)
     }
 
