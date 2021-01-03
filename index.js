@@ -1,4 +1,5 @@
 const fetch = require('node-fetch')
+const headers = {'Content-Type': 'application/json'}
 
 module.exports = class qido {
 
@@ -10,7 +11,6 @@ module.exports = class qido {
 
     request(endpoint = '', options = {}, token = null) {
         let url = this.basePath + endpoint
-        options.headers = {'Content-Type': 'application/json'}
         if (!token) token = this.getToken()
         if (token) options.headers.authorization = 'Bearer ' + token
         return fetch(url, options).then(res => {
@@ -21,40 +21,47 @@ module.exports = class qido {
 
     auth(user, pass) {
         let url = '/a/' + this.app + '/' + user + '/' + pass
-        return this.request(url, {method: 'GET'})
+        return this.request(url, {method: 'GET', headers: headers})
     }
 
-    create(path, object, token = null) {
+    create(path, object, upload = false, token = null) {
+        if (!upload) object = JSON.stringify(object)
         const options = {
             method: 'POST',
-            body: JSON.stringify(object),
+            body: object,
+            headers: headers
         }
+        if (upload) options.headers = {}
         return this.request('/c/' + this.app + '/' + path, options, token)
     }
 
     read(path, token = null) {
         let url = '/r/' + this.app + '/' + path
-        return this.request(url, {method: 'GET'}, token)
+        return this.request(url, {method: 'GET', headers: headers}, token)
     }
 
-    update(path, props, token = null) {
+    update(path, props, upload = false, token = null) {
+        if (!upload) props = JSON.stringify(props)
         const options = {
             method: 'PUT',
-            body: JSON.stringify(props),
+            body: props,
+            headers: headers
         }
+        if (upload) options.headers = {}
         return this.request('/u/' + this.app + '/' + path, options, token)
     }
 
     delete(path, token = null) {
         let url = '/d/' + this.app + '/' + path
-        return this.request(url, {method: 'DELETE'}, token)
+        return this.request(url, {method: 'DELETE', headers: headers}, token)
     }
 
     subscribe(subscription, token = null) {
         let url = '/x/' + this.app + '/p/s'
         let options = {
             method: 'POST',
-            body: JSON.stringify(subscription)
+            body: JSON.stringify(subscription),
+            headers: headers
         }
         return this.request(url, options, token)
     }
@@ -63,7 +70,8 @@ module.exports = class qido {
         let url = '/x/' + this.app + '/p/b'
         let options = {
             method: 'POST',
-            body: JSON.stringify(notification)
+            body: JSON.stringify(notification),
+            headers: headers
         }
         if (audience) url = url + '?q=' + JSON.stringify(audience)
         return this.request(url, options, token)
