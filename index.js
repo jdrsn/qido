@@ -1,27 +1,44 @@
 const fetch = require('node-fetch')
+const rxjs = require('rxjs')
+const io = require('socket.io-client')
+
 let headers = {'Content-Type': 'application/json'}
 
 module.exports = class qido {
 
-    constructor(app) {
-        this.basePath = 'https://qi.do'
+    constructor(app, key = null) {
+        this.baseUrl = 'https://qi.do'
+        this.socketUrl = 'https://s.qi.do'
         this.app = app
+        this.key = key
         this.token = null
+        this.socket = null
+    }
+
+    getToken() {
+        return this.token || localStorage.getItem('token') || sessionStorage.getItem('token')
     }
 
     request(endpoint = '', options = {}, token = null) {
-        let url = this.basePath + endpoint
+        let url = this.baseUrl + endpoint
         if (!token) token = this.getToken()
         if (token) options.headers.authorization = 'Bearer ' + token
+        if (this.key) options.headers.k = this.key
         return fetch(url, options).then(res => {
             if (res.ok) return res.json()
-            throw res.statusText
+            throw res.status
         })
     }
 
-    auth(user, pass) {
-        let url = '/a/' + this.app + '/' + user + '/' + pass
-        return this.request(url, {method: 'GET', headers: headers})
+    auth(login, pass = null) {
+        if (login instanceof FormData) headers = {}
+        else login = JSON.stringify({u: login, p: pass})
+        const options = {
+            method: 'POST',
+            body: login,
+            headers: headers
+        }
+        return this.request('/a/' + this.app, options)
     }
 
     create(path, object, token = null) {
@@ -56,6 +73,19 @@ module.exports = class qido {
         return this.request(url, {method: 'DELETE', headers: headers}, token)
     }
 
+    stream(array, id) {
+        const socketId = this.app + '-' + array + '-' + id
+        return new rxjs.Observable(observer => {
+            this.socket = io(this.socketUrl)
+            this.socket.on(socketId, (data) => {
+                observer.next(data)
+            })
+            return () => {
+                this.socket.disconnect()
+            }
+        })
+    }
+
     subscribe(subscription, token = null) {
         let url = '/x/' + this.app + '/p/s'
         let options = {
@@ -73,11 +103,19 @@ module.exports = class qido {
             body: JSON.stringify(notification),
             headers: headers
         }
-        if (audience) url = url + '?q=' + JSON.stringify(audience)
+        if (audience) url += '?q=' + JSON.stringify(audience)
         return this.request(url, options, token)
     }
 
-    getToken() {
-        return this.token || localStorage.getItem('token') || sessionStorage.getItem('token')
+    mail(message, config, token = null) {
+        let url = '/x/' + this.app + '/m'
+        if (typeof config === String) url += '/' + config
+        else message._c = config
+        let options = {
+            method: 'POST',
+            body: JSON.stringify(message),
+            headers: headers
+        }
+        return this.request(url, options, token)
     }
 }
