@@ -88,7 +88,7 @@ module.exports = class qido {
     }
 
     subscribe(subscription, token = null) {
-        let url = '/x/' + this.app + '/p/s?x=' + JSON.stringify(subscription)
+        let url = '/p/' + this.app + '/s?x=' + JSON.stringify(subscription)
         let options = {
             method: 'POST',
             // body: JSON.stringify(subscription),
@@ -98,7 +98,7 @@ module.exports = class qido {
     }
 
     broadcast(notification, audience = null, token = null) {
-        let url = '/x/' + this.app + '/p/b?x=' + JSON.stringify(notification)
+        let url = '/p/' + this.app + '/b?x=' + JSON.stringify(notification)
         let options = {
             method: 'POST',
             // body: JSON.stringify(notification),
@@ -109,7 +109,7 @@ module.exports = class qido {
     }
 
     mail(message, config, token = null) {
-        let url = '/x/' + this.app + '/m'
+        let url = '/m/' + this.app
         if (typeof config === String) url += '/' + config
         else message._c = config
         let options = {
