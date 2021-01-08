@@ -8,6 +8,7 @@ module.exports = class qido {
 
     constructor(app, key = null) {
         this.baseUrl = 'https://qi.do'
+        // this.baseUrl = 'http://localhost:3007'
         this.socketUrl = 'https://s.qi.do'
         this.app = app
         this.key = key
@@ -87,23 +88,23 @@ module.exports = class qido {
     }
 
     subscribe(subscription, token = null) {
-        let url = '/x/' + this.app + '/p/s'
+        let url = '/x/' + this.app + '/p/s?x=' + JSON.stringify(subscription)
         let options = {
             method: 'POST',
-            body: JSON.stringify(subscription),
+            // body: JSON.stringify(subscription),
             headers: headers
         }
         return this.request(url, options, token)
     }
 
     broadcast(notification, audience = null, token = null) {
-        let url = '/x/' + this.app + '/p/b'
+        let url = '/x/' + this.app + '/p/b?x=' + JSON.stringify(notification)
         let options = {
             method: 'POST',
-            body: JSON.stringify(notification),
+            // body: JSON.stringify(notification),
             headers: headers
         }
-        if (audience) url += '?q=' + JSON.stringify(audience)
+        if (audience) url += '&q=' + JSON.stringify(audience)
         return this.request(url, options, token)
     }
 

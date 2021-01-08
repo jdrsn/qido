@@ -1,5 +1,5 @@
 const client = require('@qido/client')
-const qido = new client('app')
+const qido = new client('test')
 qido.auth('u@u.uu', 'uuuuuu').then(res => {
     let token = res.data.token
     qido.create('array', {test: "lulu", hey: false}, token).then(data => console.log(data))
